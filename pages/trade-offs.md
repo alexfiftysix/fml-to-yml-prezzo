@@ -1,0 +1,5 @@
+---
+layout: center
+---
+
+# Trade-offs

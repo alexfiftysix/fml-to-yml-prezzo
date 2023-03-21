@@ -1,0 +1,2 @@
+- [Good vid on the topic](https://www.youtube.com/watch?v=e0bF1LlclEs)
+- [Remindr](https://dev.azure.com/remindr/Remindr/)

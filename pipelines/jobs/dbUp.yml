@@ -1,0 +1,19 @@
+jobs:
+  - job: DbUp
+    steps:
+      - checkout: none
+
+      - download: build-artifact
+
+      - task: FileTransform@2
+        displayName: 'DbUp file transform'
+        inputs:
+          folderPath: '$(rootPath)/dbUp'
+          jsonTargetFiles: '**\appsettings.json'
+          xmlTransformationRules: '' # Make sure it doesn't try to xml - removes a silly error message
+
+      - task: PowerShell@2
+        displayName: 'Run DbUp'
+        inputs:
+          targetType: 'inline'
+          script: '$(rootPath)/dbUp/Remindr.DbUp'

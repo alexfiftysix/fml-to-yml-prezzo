@@ -1,0 +1,26 @@
+jobs:
+  - deployment: Deploy
+    environment: $(environment)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: none
+
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: 'Deploy bicep template'
+              inputs:
+                connectedServiceName: $(serviceConnectionName)
+                deploymentName: $(Build.BuildNumber)
+                location: $(deploymentDefaultLocation)
+                resourceGroupName: $(resourceGroupName)
+                csmFile: '$(rootPath)/bicep/main.bicep'
+                overrideParameters: >
+                  -appServiceLinuxFxVersion $(runtimeStack)
+                  -appServiceName $(appServiceName)
+                  -appServiceSku $(appServiceSku)
+                  -appServiceHostingPlanName $(appServiceHostingPlanName)
+                  -databaseServerName $(databaseServerName)
+                  -databaseName $(databaseName)
+                  -databaseAdminLogin $(databaseAdminLogin)
+                  -databaseAdminPassword $(databaseAdminPassword)

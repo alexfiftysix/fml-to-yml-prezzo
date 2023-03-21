@@ -1,0 +1,73 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  - template: variables/global.yml
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Test
+        steps:
+          - task: PowerShell@2
+            displayName: 'Upgrade SQL Server'
+            inputs:
+              targetType: 'inline'
+              script: 'choco upgrade sqllocaldb'
+
+          - task: PowerShell@2
+            displayName: 'Start Localdb for Tests'
+            inputs:
+              targetType: 'inline'
+              script: 'sqllocaldb start mssqllocaldb'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Test API'
+            inputs:
+              command: 'test'
+              projects: $(apiLocation)
+
+      - job: Publish
+        dependsOn: Test
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish API'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'api/Remindr/Remindr.API/Remindr.Api.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(Build.BuildId)'
+              modifyOutputPath: false
+
+          - task: CopyFiles@2
+            displayName: 'copy bicep templates'
+            inputs:
+              SourceFolder: 'deploy/bicep'
+              Contents: '**'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/bicep'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish DbUp'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'api/Remindr/Remindr.DbUp/Remindr.DbUp.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/dbUp -p:PublishSingleFile=True'
+              modifyOutputPath: false
+              zipAfterPublish: false
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifact: 'drop-$(Build.BuildId)'
+              publishLocation: 'pipeline'

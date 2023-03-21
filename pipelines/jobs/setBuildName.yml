@@ -1,0 +1,13 @@
+jobs:
+  - job: SetBuildName
+    steps:
+      - checkout: none
+
+      - task: PowerShell@2
+        displayName: 'Set the name of the build'
+        inputs:
+          targetType: 'inline'
+          script: |
+            [string] $buildName = "$(resources.pipeline.build-artifact.runName)-$(Build.BuildId)"
+            Write-Host "Setting the name of the build to '$buildName'."
+            Write-Host "##vso[build.updatebuildnumber]$buildName"

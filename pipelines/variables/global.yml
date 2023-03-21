@@ -1,0 +1,11 @@
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Release'
+  apiLocation: 'api/Remindr'
+  subscription: 'PAYG'
+  runtimeStack: 'DOTNETCORE|7.0'
+
+  ## Bicep
+  deploymentDefaultLocation: 'australiaeast'
+  serviceConnectionName: 'PAYG'
+  resourceGroupName: 'Remindr'

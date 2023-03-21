@@ -1,0 +1,24 @@
+jobs:
+  - deployment: Deploy
+    environment: $(environment)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: none
+
+            - task: FileTransform@1
+              inputs:
+                folderPath: '$(rootPath)/$(resources.pipeline.build-artifact.runID)/$(resources.pipeline.build-artifact.runID).zip'
+                fileType: json
+                targetFiles: '**/appsettings.json'
+
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Deploy app service'
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: $(subscription)
+                appType: 'webAppLinux'
+                WebAppName: $(appServiceName)
+                packageForLinux: '$(rootPath)/$(resources.pipeline.build-artifact.runID)/$(resources.pipeline.build-artifact.runID).zip'
+                RuntimeStack: $(runtimeStack)

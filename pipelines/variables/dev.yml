@@ -1,0 +1,19 @@
+variables:
+  rootPath: '$(PIPELINE.WORKSPACE)\build-artifact\drop-$(resources.pipeline.build-artifact.runID)'
+  databaseAdminLogin: 'remindr-dev'
+  environment: Dev
+
+  # bicep
+  appServiceName: remindr-app-dev
+  appServiceSku: F1
+  appServiceHostingPlanName: remindr-app-dev-host
+  databaseServerName: remindr-sqlserver-dev
+  databaseName: remindr-db-dev
+
+  # appsettings
+  AppDetails.EnvironmentName: Dev
+  ConnectionStrings.RemindrDb: 'Server=tcp:$(databaseServerName).database.windows.net,1433;Initial Catalog=$(databaseName);Persist Security Info=False;User ID=$(databaseAdminLogin);Password=$(databaseAdminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+
+
+# Secrets are found in the Library tab:
+#   databaseAdminPassword
